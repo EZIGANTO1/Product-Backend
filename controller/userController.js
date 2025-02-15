@@ -4,18 +4,17 @@ const User = require('../Module/userModule.js');
 // register user
 const registerUser = async (req, res) => {
     try {
-        let { name, email, userName, password, phoneNumber, sex, maritalStatus } =
+        let { firstName, lastName, email, password, phoneNumber, address } =
         req.body;
 
     // validate required fields
     if (
-        !name||
+        !firstName||
+        !lastName||
         !email||
-        !userName||
         !password||
         !phoneNumber||
-        !sex||
-        !maritalStatus
+        !address
     ) {
         return res
             .status(400)
@@ -28,13 +27,12 @@ const registerUser = async (req, res) => {
 
     // save user in database
     const newUser = new User ({
-        name,
+        firstName,
+        lastName,
         email,
-        userName,
         password: hashedpassword,
         phoneNumber,
-        sex,
-        maritalStatus,
+        address,
     });
 
     // Register User in Database
@@ -75,8 +73,9 @@ const loginUser = async (req, res) => {
             return res.status(404).json({ message: 'phoneNumber not found' });
         }
         console.log(user);
+
         //COMPARE PASSWORD
-        const isMatch = await bcryptjs.compare(phoneNumber, user.password);
+        const isMatch = await bcryptjs.compare(password, user.password);
         if(!isMatch) {
             return res.status(400).json({ message: 'Invalid password' });
         }
@@ -94,7 +93,7 @@ const loginUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params;   
         //find user by id
         const user = await User.findById(id);
         if (!user) {
@@ -113,7 +112,7 @@ const updateUser = async (req, res) => {
         const updatedUser = await User.findByIdAndUpdate(id, updatedData, {
             new: true, // return the updated document 
             runValidators: true, // enforce validators rule
-        });
+        });  
         res
         .status(200)
         .json({ message: 'User Updated Successfully', updatedUser });
